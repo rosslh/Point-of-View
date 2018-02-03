@@ -9,24 +9,28 @@ natural_language_understanding = NaturalLanguageUnderstandingV1(
   version='2017-02-27')
 
 def main():
-    articles = ["https://www.cnn.com/2018/02/02/politics/prison-reform-congress-trump/index.html","https://www.cnn.com/2018/02/02/opinions/street-fighter-trump-blunt-force-against-mueller-borger/index.html","https://www.cnn.com/2018/01/31/politics/donald-trump-rod-rosenstein-december-meeting/index.html","https://www.cnn.com/2018/01/31/politics/strzok-fbi-comey-clinton-letter/index.html","https://www.cnn.com/2018/02/02/politics/what-nunes-memo-proves-analysis/index.html"]
-    foxart = ["http://www.foxnews.com/politics/2018/02/02/house-memo-states-disputed-dossier-was-key-to-fbi-s-fisa-warrant-to-surveil-members-team-trump.html","http://www.foxnews.com/us/2018/02/02/following-release-house-memo-fbi-director-says-talk-is-cheap-in-letter-to-bureau.html","http://www.foxnews.com/opinion/2018/02/02/doug-schoen-releasing-republican-memo-risks-integrity-our-criminal-justice-system.html","http://www.foxnews.com/politics/2018/02/02/k-t-mcfarland-trump-nominee-for-ambassador-to-singapore-withdraws-nomination.html","http://www.foxnews.com/opinion/2018/02/02/alan-dershowitz-nunes-fisa-memo-deserves-more-investigation-time-for-nonpartisan-commission.html"]
-    scores = []
-    keywordsL = []
-    for i in foxart:
-        keywordsL.append(keyWords(i))
-        scores.append(analyzeSentiment(i))
-    print(keywordsL)
 
+
+"""
+    Analyzes content for major keywords.
+:param absUrl: Article Url
+:returns: list of strings
+"""
 def keyWords(absUrl):
     response = natural_language_understanding.analyze(
         url=absUrl,
         features=Features(
             keywords=KeywordsOptions(
-                limit=5)))
+                limit=3)))
     keywords = [i['text'] for i in response['keywords']]
     return keywords
     
+"""
+    Analyzes content for general sentiment/tone
+:param absUrl: Article Url
+:returns: floating point value between -1 and 1. -1 being most negative and
+          1 being most positive.
+"""
 def analyzeSentiment(absUrl):
     response = natural_language_understanding.analyze(
     url=absUrl,
