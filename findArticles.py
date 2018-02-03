@@ -40,7 +40,6 @@ url_next_page_num = "http://www.google.%(tld)s/search?hl=%(lang)s&q=%(query)s&nu
 
 
 def get_page(url):
-
     if(sys.platform == "linux"):
         browser = webdriver.Chrome(executable_path="/usr/lib/chromium-browser/chromedriver")
     else:
@@ -91,6 +90,8 @@ def search(query, tld='com', lang='en', num=10, start=0, stop=None, pause=5.0, s
         url += "&" + urllib.parse.urlencode({"tbs": "cdr:1,cd_min:{},cd_max:{}".format(startdate, enddate)})
 
     # Loop until we reach the maximum result, if any (otherwise, loop forever).
+    if url in prevUsedUrls():
+        return []
     while not stop or start < stop:
         # Sleep between requests.
         time.sleep(pause)
@@ -101,7 +102,6 @@ def search(query, tld='com', lang='en', num=10, start=0, stop=None, pause=5.0, s
         try:
             anchors = soup.find(id='search').findAll('a')
             for a in anchors:
-                recordSearch(url)  # record the search page
                 try:
                     link = a['href']
                 except KeyError:
@@ -117,6 +117,7 @@ def search(query, tld='com', lang='en', num=10, start=0, stop=None, pause=5.0, s
                 if h in hashes:
                     continue
                 hashes.add(h)
+                recordSearch(url)  # record the search page
 
                 # Yield the result.
                 yield link
@@ -136,40 +137,42 @@ def search(query, tld='com', lang='en', num=10, start=0, stop=None, pause=5.0, s
             url += "&" + urllib.parse.urlencode({"tbs": "cdr:1,cd_min:{},cd_max:{}".format(startdate, enddate)})
 
 
+def prevUsedUrls():
+    with open("searches.txt", 'r') as f:
+        return f.read().split('\n')
+
+
 def getResults(keyword, start_timestamp, stop_timestamp, step_days):
-    # CNN
     cnn_url = "www.cnn.com"
-    while start_timestamp <= stop_timestamp:
-        start = datetime.datetime.fromtimestamp(start_timestamp).strftime('%m/%d/%Y')
-        end = datetime.datetime.fromtimestamp(start_timestamp + step_days * 86400).strftime('%m/%d/%Y')
-        for a in search("{} url:{}".format(keyword, cnn_url), stop=9, startdate=start, enddate=end):
-            recordUrl(a)
-            date = (start_timestamp + stop_timestamp) // 2
-            recordDate(date)
-    # FOX
     fox_url = "www.foxnews.com"
     while start_timestamp <= stop_timestamp:
         start = datetime.datetime.fromtimestamp(start_timestamp).strftime('%m/%d/%Y')
         end = datetime.datetime.fromtimestamp(start_timestamp + step_days * 86400).strftime('%m/%d/%Y')
-        for a in search("{} url:{}".format(keyword, fox_url), stop=9, startdate=start, enddate=end):
+        for a in search("{} site:{}".format(keyword, cnn_url), stop=9, startdate=start, enddate=end):
             recordUrl(a)
             date = (start_timestamp + stop_timestamp) // 2
             recordDate(date)
+        for a in search("{} site:{}".format(keyword, fox_url), stop=9, startdate=start, enddate=end):
+            recordUrl(a)
+            date = (start_timestamp + stop_timestamp) // 2
+            recordDate(date)
+        start_timestamp += step_days * 86400
 
 
 def recordSearch(query):
     with open("searches.txt", "a") as f:
-        f.write(query)
+        f.write("{}\n".format(query))
 
 
 def recordUrl(url):
     with open("articles.txt", "a") as f:
-        f.write(url)
+        f.write("{}\n".format(url))
 
 
 def recordDate(date):
     with open("dates.txt", "a") as f:
-        f.write(str(date))
+        f.write("{}\n".format(str(date)))
 
 
-getResults("Trump", 1454515366, 1486137766, 7)
+with open("date.txt", 'r') as f:
+    getResults("Trump", f.read().split('\n')[-1], 1486137766, 7)
