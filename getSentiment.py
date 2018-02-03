@@ -14,9 +14,11 @@ def main():
     scores = []
     for i in foxart:
         scores.append(analyzeSentiment(i))
-    print("scores"+str(scores))
 
 
+def keyWords():
+    
+    
 def analyzeSentiment(absUrl):
     response = natural_language_understanding.analyze(
     url=absUrl,
