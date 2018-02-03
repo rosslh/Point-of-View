@@ -186,8 +186,8 @@ def articlesToList(keyword):  # [url, date, network, keyword, -2, []]
         for article in f.read().split("\n"):
             matched = pattern.search(article)
             if matched:
-                out.append((article, mdyToTimestamp(matched.group(0)),
-                            "Fox" if "fox" in article else "CNN", keyword, []))
+                out.append([article, mdyToTimestamp(matched.group(0)),
+                            "Fox" if "fox" in article else "CNN", keyword, []])
     return out
 
 
