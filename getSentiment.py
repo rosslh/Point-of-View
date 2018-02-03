@@ -7,16 +7,6 @@ natural_language_understanding = NaturalLanguageUnderstandingV1(
   username='43f96ab3-69a5-4d92-8bff-3c471730fe45',
   password='yzKNcnEDXFmB',
   version='2017-02-27')
-
-def main():
-   test=[["https://www.cnn.com/2018/02/03/politics/donald-trump-memo/index.html","date","cnn",0,[]],
-     ["https://www.cnn.com/2018/02/02/politics/john-mccain-nunes-memo/index.html","date","cnn",0,[]],
-     ["https://www.cnn.com/2018/02/03/africa/north-korea-mozambique-sanctions-intl/index.html","date","cnn",0,[]],
-     ["https://www.cnn.com/2018/02/03/entertainment/lady-gaga-cancels-tour/index.html","date","cnn",0,[]],
-     ["https://www.cnn.com/2018/02/02/sport/super-bowl-lii-preview-eagles-patriots/index.html","date","cnn",0,[]]]
-   test2 = analyzeIn(test)
-   print(cnnVsFoxSentiment(test2))
-   print(test2)
    
 
 '''
