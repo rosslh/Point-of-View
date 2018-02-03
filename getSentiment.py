@@ -9,6 +9,27 @@ natural_language_understanding = NaturalLanguageUnderstandingV1(
   version='2017-02-27')
 
 def main():
+   test=[["https://www.cnn.com/2018/02/03/politics/donald-trump-memo/index.html","date","cnn",0,[]],
+     ["https://www.cnn.com/2018/02/02/politics/john-mccain-nunes-memo/index.html","date","cnn",0,[]],
+     ["https://www.cnn.com/2018/02/03/africa/north-korea-mozambique-sanctions-intl/index.html","date","cnn",0,[]],
+     ["https://www.cnn.com/2018/02/03/entertainment/lady-gaga-cancels-tour/index.html","date","cnn",0,[]],
+     ["https://www.cnn.com/2018/02/02/sport/super-bowl-lii-preview-eagles-patriots/index.html","date","cnn",0,[]]]
+   test2 = analyzeIn(test)
+   print(cnnVsFoxSentiment(test2))
+   print(test2)
+   
+
+'''
+    Updates the given data of urls with sentiment scores and keywords
+:param:A list of lists (String: url,TimeStamp: date,String: networkname,Float: score,[String]:keywords)
+
+'''
+def analyzeIn(absUrls):
+    for absTuple in absUrls:
+        absUrl = absTuple[0]
+        absTuple[3] = analyzeSentiment(absUrl)
+        absTuple[4] = analyzeKeyWords(absUrl)
+    return absUrls
 
 
 """
@@ -16,7 +37,7 @@ def main():
 :param absUrl: Article Url
 :returns: list of strings
 """
-def keyWords(absUrl):
+def analyzeKeyWords(absUrl):
     response = natural_language_understanding.analyze(
         url=absUrl,
         features=Features(
@@ -38,6 +59,21 @@ def analyzeSentiment(absUrl):
         sentiment=SentimentOptions()))
     return float(response['sentiment']['document']['score'])
  
+
+def cnnVsFoxSentiment(formattedURLS):
+    cnnArt = [ x[3] for x in formattedURLS if x[2] == 'cnn'] 
+    foxArt =[ x[3] for x in formattedURLS if x[2] == 'fox']
+    cnnAvg = 0
+    foxAvg = 0
+    try:
+        cnnAvg = (sum(cnnArt))/(len(cnnArt))
+    except:
+        pass
+    try:
+        foxAvg = (sum(foxArt))/(len(foxArt))
+    except:
+        pass
+    return [cnnAvg,foxAvg]
 
 main()
     
