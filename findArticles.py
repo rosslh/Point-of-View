@@ -3,6 +3,7 @@ __all__ = ['search']
 import datetime
 import sys
 import time
+import re
 
 from selenium import webdriver
 
@@ -174,5 +175,24 @@ def recordDate(date):
         f.write("{}\n".format(str(date)))
 
 
-with open("date.txt", 'r') as f:
-    getResults("Trump", f.read().split('\n')[-1], 1486137766, 7)
+def mdyToTimestamp(date):
+    return time.mktime(datetime.datetime.strptime(date, "/%Y/%m/%d/").timetuple())
+
+
+def articlesToList(keyword):  # [url, date, network, keyword, -2, []]
+    out = []
+    pattern = re.compile("/20[0-9]{2}/[0-9]{2}/[0-9]{2}/")
+    with open("articles.txt", 'r') as f:
+        for article in f.read().split("\n"):
+            matched = pattern.search(article)
+            if matched:
+                out.append((article, mdyToTimestamp(matched.group(0)),
+                            "Fox" if "fox" in article else "CNN", keyword, []))
+    return out
+
+
+if input("Fetch new results? (yes/no) ") == "yes":
+    with open("dates.txt", 'r') as f:
+            getResults("Trump", int(f.read().split('\n')[-2]), 1486137766, 7)
+
+print(articlesToList("Trump"))
