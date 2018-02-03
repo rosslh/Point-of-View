@@ -1,5 +1,3 @@
-__all__ = ['search']
-
 import datetime
 import re
 import sys
@@ -118,7 +116,7 @@ def search(query, tld='com', lang='en', num=10, start=0, stop=None, pause=5.0, s
                 if h in hashes:
                     continue
                 hashes.add(h)
-                recordSearch(url)  # record the search page
+                # recordSearch(url)  # record the search page
 
                 # Yield the result.
                 yield link
@@ -143,7 +141,28 @@ def prevUsedUrls():
         return f.read().split('\n')
 
 
-def getResults(keyword, start_timestamp, stop_timestamp, step_days):
+def recordUrl(url):
+    with open("articles.txt", "a") as f:
+        f.write("{}\n".format(url))
+
+
+def ymdToTimestamp(date):
+    return time.mktime(datetime.datetime.strptime(date, "/%Y/%m/%d/").timetuple())
+
+
+def getDataFromFile(keyword):  # [url, date, network, keyword, -2, []]
+    out = []
+    pattern = re.compile("/20[0-9]{2}/[0-9]{2}/[0-9]{2}/")
+    with open("{}.txt".format(keyword), 'r') as f:
+        for article in f.read().split("\n"):
+            matched = pattern.search(article)
+            if matched:
+                out.append([article, ymdToTimestamp(matched.group(0)),
+                            "Fox" if "foxnews.com" in article else "CNN", keyword, []])
+    return out
+
+
+def scrapeArticleLinks(keyword, start_timestamp, stop_timestamp, step_days):
     cnn_url = "www.cnn.com"
     fox_url = "www.foxnews.com"
     while start_timestamp <= stop_timestamp:
@@ -151,46 +170,11 @@ def getResults(keyword, start_timestamp, stop_timestamp, step_days):
         end = datetime.datetime.fromtimestamp(start_timestamp + step_days * 86400).strftime('%m/%d/%Y')
         for a in search("{} site:{}".format(keyword, cnn_url), stop=9, startdate=start, enddate=end):
             recordUrl(a)
-            date = (start_timestamp + stop_timestamp) // 2
-            recordDate(date)
         for a in search("{} site:{}".format(keyword, fox_url), stop=9, startdate=start, enddate=end):
             recordUrl(a)
-            date = (start_timestamp + stop_timestamp) // 2
-            recordDate(date)
         start_timestamp += step_days * 86400
-
-
-def recordSearch(query):
-    with open("searches.txt", "a") as f:
-        f.write("{}\n".format(query))
-
-
-def recordUrl(url):
-    with open("articles.txt", "a") as f:
-        f.write("{}\n".format(url))
-
-
-def recordDate(date):
-    with open("dates.txt", "a") as f:
-        f.write("{}\n".format(str(date)))
-
-
-def mdyToTimestamp(date):
-    return time.mktime(datetime.datetime.strptime(date, "/%Y/%m/%d/").timetuple())
-
-
-def articlesToList(keyword):  # [url, date, network, keyword, -2, []]
-    out = []
-    pattern = re.compile("/20[0-9]{2}/[0-9]{2}/[0-9]{2}/")
-    with open("articles.txt", 'r') as f:
-        for article in f.read().split("\n"):
-            matched = pattern.search(article)
-            if matched:
-                out.append([article, mdyToTimestamp(matched.group(0)),
-                            "Fox" if "fox" in article else "CNN", keyword, []])
-    return out
 
 
 if input("Fetch new results? (yes/no) ") == "yes":
     with open("dates.txt", 'r') as f:
-        getResults("Trump", int(f.read().split('\n')[-2]), 1486137766, 7)
+        collectArticleLinks("Trump", int(f.read().split('\n')[-2]), 1486137766, 7)
