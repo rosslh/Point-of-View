@@ -147,7 +147,7 @@ def getDataFromFile(keyword):  # [url, date, network, keyword, -2, []]
             matched = pattern.search(article)
             if matched:
                 out.append([article, ymdToTimestamp(matched.group(0)),
-                            "Fox" if "foxnews.com" in article else "CNN", keyword, []])
+                            "Fox" if "foxnews.com" in article else "CNN", keyword, -2, []])
     return out
 
 
@@ -169,3 +169,5 @@ def scrapeArticleLinks(keyword, start_timestamp, stop_timestamp, step_days):
 #     start = input("Start: ") or 1486962000
 #     stop = input("Stop: ") or 1499808961
 #     scrapeArticleLinks(subject, start, stop, 7)
+
+print(getDataFromFile("James Comey"))
