@@ -169,5 +169,3 @@ def scrapeArticleLinks(keyword, start_timestamp, stop_timestamp, step_days):
 #     start = input("Start: ") or 1486962000
 #     stop = input("Stop: ") or 1499808961
 #     scrapeArticleLinks(subject, start, stop, 7)
-
-print(getDataFromFile("James Comey"))
