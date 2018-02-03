@@ -1,9 +1,9 @@
 __all__ = ['search']
 
 import datetime
+import re
 import sys
 import time
-import re
 
 from selenium import webdriver
 
@@ -193,6 +193,4 @@ def articlesToList(keyword):  # [url, date, network, keyword, -2, []]
 
 if input("Fetch new results? (yes/no) ") == "yes":
     with open("dates.txt", 'r') as f:
-            getResults("Trump", int(f.read().split('\n')[-2]), 1486137766, 7)
-
-print(articlesToList("Trump"))
+        getResults("Trump", int(f.read().split('\n')[-2]), 1486137766, 7)
