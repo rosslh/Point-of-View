@@ -136,7 +136,7 @@ def recordUrl(url, subject):
 
 
 def ymdToTimestamp(date):
-    return time.mktime(datetime.datetime.strptime(date, "/%Y/%m/%d/").timetuple())
+    return str(int(time.mktime(datetime.datetime.strptime(date, "/%Y/%m/%d/").timetuple())))
 
 
 def getDataFromFile(keyword):  # [url, date, network, keyword, -2, []]
