@@ -1,4 +1,5 @@
 import json
+import tldextract
 from watson_developer_cloud import NaturalLanguageUnderstandingV1
 from watson_developer_cloud.natural_language_understanding_v1 \
   import Features, SentimentOptions, KeywordsOptions
@@ -9,18 +10,54 @@ natural_language_understanding = NaturalLanguageUnderstandingV1(
   version='2017-02-27')
 
 def main():
-    aList = [["https://www.cnn.com/2018/02/02/politics/james-comey-nunes-memo/index.html",'date','cnn','Trump',0.0,[]]
-             ,["https://www.cnn.com/2018/02/02/politics/rod-rosenstein-donald-trump/index.html",'date','cnn','Trump',0.0,[]]
-             ,["https://www.cnn.com/2018/01/30/politics/melania-trump-state-of-the-union-2018/index.html",'date','cnn','Trump',0.0,[]]
-             ,["http://www.foxnews.com/politics/2018/02/02/house-memo-states-disputed-dossier-was-key-to-fbi-s-fisa-warrant-to-surveil-members-team-trump.html",'date','fox','Trump',0.0,[]]
-             ,["http://www.foxnews.com/politics/2018/02/03/nunes-fisa-memo-sparks-reactions-from-politicians.html",'date','fox','Trump',0.0,[]]
-             ,["http://www.foxnews.com/opinion/2018/02/03/gop-memo-raises-serious-questions-about-fbi-and-justice-department-officials-that-demand-answers.html",'date','fox','Trump',0.0,[]]
-             ]
-    test = analyzeIn(aList)
-    print(test)
-    print(cnnVsFoxSentiment(test))
+    articles = open("articles.txt","r")
+    artList = [line.split() for line in articles.readlines()]
+    dates = open("dates.txt","r")
+    dateList = [line.split() for line in dates.readlines()]
+    urlData = createCSV(artList,dateList)
+    print(urlData)
+    test = analyzeIn(urlData)
+    for i in test:
+        print(i)
+    
+ 
+#A list of lists [String: url,TimeStamp: date,String: networkname,String: Target, Float: score,[String]:keywords]
 
-   
+articlesLocation = "/Users/student/Documents/Github/QHacks/articles.txt"
+datesLocation = "/Users/student/Documents/Github/QHacks/dates.txt"
+networkList = []
+
+
+with open(articlesLocation) as f:
+    articleContent = f.readlines()
+articleContent = [x.strip() for x in articleContent]
+
+with open(datesLocation) as f:
+    dateContent = f.readlines()
+dateContent = [x.strip() for x in dateContent]
+
+for articleURL in articleContent:
+    if articleURL.find("cnn") == -1:
+        networkList.append("fox")
+    else:
+        networkList.append("cnn")
+
+finalList = []
+
+print(articleContent)
+print(dateContent)
+print(networkList)
+
+for i in range(len(articleContent)-1):
+    tempList = [];
+    tempList.append(articleContent[i])
+    tempList.append(dateContent[i])
+    tempList.append(networkList[i])
+    tempList.append(None)
+    tempList.append(None)
+    finalList.append(tempList)
+
+print(finalList)
 '''
     Updates the given data of urls with sentiment scores and keywords
 :param:A list of lists [String: url,TimeStamp: date,String: networkname,String: Target, Float: score,[String]:keywords]
@@ -66,7 +103,7 @@ def analyzeSentiment(absUrl,target):
 
 def cnnVsFoxSentiment(formattedURLS):
     cnnArt = [ x[4] for x in formattedURLS if x[2] == 'cnn'] 
-    foxArt =[ x[4] for x in formattedURLS if x[2] == 'fox']
+    foxArt =[ x[4] for x in formattedURLS if x[2] == 'foxnews']
     cnnAvg = 0
     foxAvg = 0
     try:
