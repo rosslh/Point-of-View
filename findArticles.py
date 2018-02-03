@@ -169,7 +169,7 @@ def recordUrl(url):
 
 def recordDate(date):
     with open("dates.txt", "a") as f:
-        f.write(date)
+        f.write(str(date))
 
 
 getResults("Trump", 1454515366, 1486137766, 7)
