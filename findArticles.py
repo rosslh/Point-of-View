@@ -25,23 +25,11 @@ url_next_page = "http://www.google.%(tld)s/search?hl=%(lang)s&q=%(query)s&start=
 url_search_num = "http://www.google.%(tld)s/search?hl=%(lang)s&q=%(query)s&num=%(num)d&btnG=Google+Search"
 url_next_page_num = "http://www.google.%(tld)s/search?hl=%(lang)s&q=%(query)s&num=%(num)d&start=%(start)d"
 
-# Cookie jar. Stored at the user's home folder.
-# home_folder = os.getenv('HOME')
-# if not home_folder:
-#     home_folder = os.getenv('USERHOME')
-#     if not home_folder:
-#         home_folder = '.'   # Use the current folder on error.
-# cookie_jar = LWPCookieJar(os.path.join(home_folder, '.google-cookie'))
-# try:
-#     cookie_jar.load()
-# except Exception:
-#     pass
-
 
 def get_page(url):
-    if(sys.platform == "linux"):
+    if(sys.platform == "linux"):  # Ross
         browser = webdriver.Chrome(executable_path="/usr/lib/chromium-browser/chromedriver")
-    else:
+    else:  # Frodi
         browser = webdriver.Chrome()
     browser.get(url)  # navigate to the page
     html = browser.page_source
@@ -89,8 +77,8 @@ def search(query, tld='com', lang='en', num=10, start=0, stop=None, pause=5.0, s
         url += "&" + urllib.parse.urlencode({"tbs": "cdr:1,cd_min:{},cd_max:{}".format(startdate, enddate)})
 
     # Loop until we reach the maximum result, if any (otherwise, loop forever).
-    if url in prevUsedUrls():
-        return []
+    # if url in prevUsedUrls():
+    #     return []
     while not stop or start < stop:
         # Sleep between requests.
         time.sleep(pause)
@@ -136,14 +124,15 @@ def search(query, tld='com', lang='en', num=10, start=0, stop=None, pause=5.0, s
             url += "&" + urllib.parse.urlencode({"tbs": "cdr:1,cd_min:{},cd_max:{}".format(startdate, enddate)})
 
 
-def prevUsedUrls():
-    with open("searches.txt", 'r') as f:
-        return f.read().split('\n')
+# def prevUsedUrls():
+#     with open("searches.txt", 'r') as f:
+#         return f.read().split('\n')
 
 
-def recordUrl(url):
-    with open("articles.txt", "a") as f:
-        f.write("{}\n".format(url))
+def recordUrl(url, subject):
+    with open("{}.txt".format(subject), "a+") as f:
+        if url not in f.read().split("\n"):
+            f.write("{}\n".format(url))
 
 
 def ymdToTimestamp(date):
@@ -169,12 +158,14 @@ def scrapeArticleLinks(keyword, start_timestamp, stop_timestamp, step_days):
         start = datetime.datetime.fromtimestamp(start_timestamp).strftime('%m/%d/%Y')
         end = datetime.datetime.fromtimestamp(start_timestamp + step_days * 86400).strftime('%m/%d/%Y')
         for a in search("{} site:{}".format(keyword, cnn_url), stop=9, startdate=start, enddate=end):
-            recordUrl(a)
+            recordUrl(a, keyword)
         for a in search("{} site:{}".format(keyword, fox_url), stop=9, startdate=start, enddate=end):
-            recordUrl(a)
+            recordUrl(a, keyword)
         start_timestamp += step_days * 86400
 
 
-if input("Fetch new results? (yes/no) ") == "yes":
-    with open("dates.txt", 'r') as f:
-        collectArticleLinks("Trump", int(f.read().split('\n')[-2]), 1486137766, 7)
+# if input("Generate URLs for James Comey? (yes/no)") == "yes":
+#     subject = input("Subject name: ")
+#     start = input("Start: ") or 1486962000
+#     stop = input("Stop: ") or 1499808961
+#     scrapeArticleLinks(subject, start, stop, 7)
