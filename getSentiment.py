@@ -15,7 +15,9 @@ def main():
      ["https://www.cnn.com/2018/02/03/entertainment/lady-gaga-cancels-tour/index.html","date","cnn",0,[]],
      ["https://www.cnn.com/2018/02/02/sport/super-bowl-lii-preview-eagles-patriots/index.html","date","cnn",0,[]]]
    test2 = analyzeIn(test)
+   print(cnnVsFoxSentiment(test2))
    print(test2)
+   
 
 '''
     Updates the given data of urls with sentiment scores and keywords
@@ -57,6 +59,21 @@ def analyzeSentiment(absUrl):
         sentiment=SentimentOptions()))
     return float(response['sentiment']['document']['score'])
  
+
+def cnnVsFoxSentiment(formattedURLS):
+    cnnArt = [ x[3] for x in formattedURLS if x[2] == 'cnn'] 
+    foxArt =[ x[3] for x in formattedURLS if x[2] == 'fox']
+    cnnAvg = 0
+    foxAvg = 0
+    try:
+        cnnAvg = (sum(cnnArt))/(len(cnnArt))
+    except:
+        pass
+    try:
+        foxAvg = (sum(foxArt))/(len(foxArt))
+    except:
+        pass
+    return [cnnAvg,foxAvg]
 
 main()
     
