@@ -64,7 +64,7 @@ def filter_result(link):
     return None
 
 
-def search(query, tld='com', lang='en', num=10, start=0, stop=None, pause=2.0, startdate="", enddate=""):
+def search(query, tld='com', lang='en', num=10, start=0, stop=None, pause=5.0, startdate="", enddate=""):
     # Set of hashes for the results found.
     # This is used to avoid repeated results.
     hashes = set()
@@ -86,6 +86,10 @@ def search(query, tld='com', lang='en', num=10, start=0, stop=None, pause=2.0, s
 
     if(startdate and enddate):  # also change one down the page
         url += "&" + urllib.parse.urlencode({"tbs": "cdr:1,cd_min:{},cd_max:{}".format(startdate, enddate)})
+    with open("searches.txt", 'a+') as f:
+        if(url in f.read().split("\n")):
+            return []
+
     # Loop until we reach the maximum result, if any (otherwise, loop forever).
     while not stop or start < stop:
         # Sleep between requests.
@@ -94,28 +98,33 @@ def search(query, tld='com', lang='en', num=10, start=0, stop=None, pause=2.0, s
         html = get_page(url)
         # Parse the response and process every anchored URL.
         soup = BeautifulSoup(html, "lxml")
-        anchors = soup.find(id='search').findAll('a')
-        for a in anchors:
-            # Get the URL from the anchor tag.
-            try:
-                link = a['href']
-            except KeyError:
-                continue
+        try:
+            anchors = soup.find(id='search').findAll('a')
+            for a in anchors:
+                with open("searches.txt", 'a+') as f:
+                    if(url not in f.read().split("\n")):
+                        f.write(url)
+                # Get the URL from the anchor tag.
+                try:
+                    link = a['href']
+                except KeyError:
+                    continue
 
-            # Filter invalid links and links pointing to Google itself.
-            link = filter_result(link)
-            if not link:
-                continue
+                # Filter invalid links and links pointing to Google itself.
+                link = filter_result(link)
+                if not link:
+                    continue
 
-            # Discard repeated results.
-            h = hash(link)
-            if h in hashes:
-                continue
-            hashes.add(h)
+                # Discard repeated results.
+                h = hash(link)
+                if h in hashes:
+                    continue
+                hashes.add(h)
 
-            # Yield the result.
-            yield link
-
+                # Yield the result.
+                yield link
+        except:
+            pass
         # End if there are no more results.
         if not soup.find(id='nav'):
             break
@@ -138,9 +147,12 @@ def getResults(keyword, start_timestamp, stop_timestamp, step_days):
     while start_timestamp <= stop_timestamp:
         start = datetime.datetime.fromtimestamp(start_timestamp).strftime('%m/%d/%Y')
         end = datetime.datetime.fromtimestamp(start_timestamp + step_days * 86400).strftime('%m/%d/%Y')
-        for a in search("{} url:{}".format(keyword, cnn_url), stop=50, startdate=start, enddate=end):
+        for a in search("{} url:{}".format(keyword, cnn_url), stop=9, startdate=start, enddate=end):
             cnn_urls.append(a)
-            cnn_dates.append((start + end) // 2)
+            date = (start_timestamp + stop_timestamp) // 2
+            with open('out.txt', 'a') as f:
+                f.write('({}, {}, "cnn", -2, [])'.format(a, date))
+            cnn_dates.append()
     # FOX
     fox_url = "www.foxnews.com"
     fox_urls = []
@@ -148,9 +160,18 @@ def getResults(keyword, start_timestamp, stop_timestamp, step_days):
     while start_timestamp <= stop_timestamp:
         start = datetime.datetime.fromtimestamp(start_timestamp).strftime('%m/%d/%Y')
         end = datetime.datetime.fromtimestamp(start_timestamp + step_days * 86400).strftime('%m/%d/%Y')
-        for a in search("{} url:{}".format(keyword, fox_url), stop=50, startdate=start, enddate=end):
+        for a in search("{} url:{}".format(keyword, fox_url), stop=9, startdate=start, enddate=end):
             fox_urls.append(a)
-            fox_dates.append((start + end) // 2)
+            date = (start_timestamp + stop_timestamp) // 2
+            with open('out.txt', 'a') as f:
+                f.write('({}, {}, "fox", -2, [])'.format(a, date))
+            fox_dates.append()
+
+    out = []
+    for i, url in enumerate(cnn_urls):
+        out.append((url, cnn_dates[i], "cnn", -2, []))
+    for i, url in enumerate(fox_urls):
+        out.append((url, fox_urls[i], "fox", -2, []))
 
 
-getResults("Trump", 1454515366, 1486137766, 3)
+getResults("Trump", 1454515366, 1486137766, 7)
