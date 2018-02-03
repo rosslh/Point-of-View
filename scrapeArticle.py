@@ -1,7 +1,7 @@
 import urllib.request
 import re
 
-def scrapeArticle(articleURL):
+def scrapeCNNArticle(articleURL):
     fp = urllib.request.urlopen(articleURL)
     mybytes = fp.read()
 
@@ -31,3 +31,6 @@ def scrapeArticle(articleURL):
     print("\n".join(filteredSubstrings))
 
     return filteredSubstrings
+
+
+scrapeCNNArticle("https://www.cnn.com/2018/02/02/politics/christopher-wray-fbi-memo/index.html")
