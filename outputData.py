@@ -17,12 +17,12 @@ def createAndShowGraph(urls,dates,newstype,scores,keywords):
     for i in range(len(urls)-1):
         if newstype[i] == "fox" :
             if float(scores[i]) != 0:
-                foxXaxis.append(dates[i])
+                foxXaxis.append(datetime.datetime.fromtimestamp(dates[i]))
                 foxYaxis.append(float(scores[i]))
                 foxHover.append("Article: " + urls[i])
         elif newstype[i] == "cnn":
             if float(scores[i]) != 0:
-                cnnXaxis.append(dates[i])
+                cnnXaxis.append(datetime.datetime.fromtimestamp(dates[i]))
                 cnnYaxis.append(float(scores[i]))
                 cnnHover.append("Article: " + urls[i])
 
@@ -46,7 +46,7 @@ def createAndShowGraph(urls,dates,newstype,scores,keywords):
     )
 
     layout = go.Layout(
-        title = "Analysis of stuff",
+        title = "Analysis of: " + "keywords" + " from " + "startDate" + " to " + "endDate",
         xaxis=dict(
             title='Date',
             titlefont=dict(
