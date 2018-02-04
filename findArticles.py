@@ -124,30 +124,26 @@ def search(query, tld='com', lang='en', num=10, start=0, stop=None, pause=5.0, s
             url += "&" + urllib.parse.urlencode({"tbs": "cdr:1,cd_min:{},cd_max:{}".format(startdate, enddate)})
 
 
-# def prevUsedUrls():
-#     with open("searches.txt", 'r') as f:
-#         return f.read().split('\n')
-
-
 def recordUrl(url, subject):
-    with open("{}.txt".format(subject), "a+") as f:
+    with open("./data/{}.txt".format(subject), "a+") as f:
         if url not in f.read().split("\n"):
             f.write("{}\n".format(url))
 
 
 def ymdToTimestamp(date):
-    return str(int(time.mktime(datetime.datetime.strptime(date, "/%Y/%m/%d/").timetuple())))
+    return time.mktime(datetime.datetime.strptime(date, "/%Y/%m/%d/").timetuple())
 
 
-def getDataFromFile(keyword):  # [url, date, network, keyword, -2, []]
+def getDataFromFile(keyword, start, stop):  # [url, date, network, keyword, -2, []]
     out = []
     pattern = re.compile("/20[0-9]{2}/[0-9]{2}/[0-9]{2}/")
-    with open("{}.txt".format(keyword), 'r') as f:
+    with open("./data/{}.txt".format(keyword), 'r') as f:
         for article in f.read().split("\n"):
             matched = pattern.search(article)
             if matched:
-                out.append([article, ymdToTimestamp(matched.group(0)),
-                            "Fox" if "foxnews.com" in article else "CNN", keyword, -2, []])
+                timestamp = ymdToTimestamp(matched.group(0))
+                if start <= timestamp <= stop:
+                    out.append([article, timestamp, "Fox" if "foxnews.com" in article else "CNN", keyword, -2, []])
     return out
 
 
@@ -162,10 +158,3 @@ def scrapeArticleLinks(keyword, start_timestamp, stop_timestamp, step_days):
         for a in search("{} site:{}".format(keyword, fox_url), stop=9, startdate=start, enddate=end):
             recordUrl(a, keyword)
         start_timestamp += step_days * 86400
-
-
-# if input("Generate URLs for James Comey? (yes/no)") == "yes":
-#     subject = input("Subject name: ")
-#     start = input("Start: ") or 1486962000
-#     stop = input("Stop: ") or 1499808961
-#     scrapeArticleLinks(subject, start, stop, 7)
