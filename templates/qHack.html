@@ -187,7 +187,7 @@
     /* Akira */
 
     .input--akira {
-        margin-top: 2em;
+        margin-top: 1em;
     }
 
     .input__field--akira {
@@ -227,6 +227,7 @@
 
     .input__label-content--akira {
         -webkit-transition: -webkit-transform 0.3s;
+        
         transition: transform 0.3s;
     }
 
@@ -330,30 +331,29 @@
     <form method="POST">
         <section>
             <div class="input input--akira">
-                <input name="text" class="input__field input__field--akira" type="text" id="input-22" />
+                <input name="text" class="input__field input__field--akira" type="text" id="input-22" placeholder="Target" onClick="this.value='';" />
                 <label class="input__label input__label--akira" for="input-22">
                     <span class="input__label-content input__label-content--akira"></span>
                 </label>
             </div>
         </section>
+        <section>
+                <div class="input input--akira">
+                    <input name="text" class="input__field input__field--akira" type="text" id="input-23" placeholder="Source One" onClick="this.value='';"/>
+                    <label class="input__label input__label--akira" for="input-23">
+                        <span class="input__label-content input__label-content--akira"></span>
+                    </label>
+                </div>
+            </section>
+            <section>
+                    <div class="input input--akira">
+                        <input name="text" class="input__field input__field--akira" type="text" id="input-24" placeholder="Source Two" onClick="this.value='';"/>
+                        <label class="input__label input__label--akira" for="input-24">
+                            <span class="input__label-content input__label-content--akira"></span>
+                        </label>
+                    </div>
+                </section>
         <input name="start" type="date"> &mdash; <input name="finish" type="date">
-        <br>
-        <br>
-        <div class="dropdown">
-            <button class="btn">Source One</button>
-            <div class="dropdown-content">
-              <a href="#">CNN</a>
-              <a href="#">Huffington Post</a>
-            </div>
-        </div>
-        &mdash;
-        <div class="dropdown">
-            <button class="btn">Source Two</button>
-            <div class="dropdown-content">
-              <a href="#">Fox News</a>
-              <a href="#">Breitbart</a>
-            </div>
-        </div>
         <br><br>
         <button type="submit" class="btn">Run</button>
         <div class="dropdown">
