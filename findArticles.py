@@ -4,6 +4,7 @@ import sys
 import time
 
 from selenium import webdriver
+from urlparse import urlparse
 
 if sys.version_info[0] > 2:
     from urllib.parse import quote_plus, urlparse, parse_qs
@@ -143,18 +144,16 @@ def getDataFromFile(keyword, start, stop):  # [url, date, network, keyword, -2, 
             if matched:
                 timestamp = ymdToTimestamp(matched.group(0))
                 if start <= timestamp <= stop:
-                    out.append([article, timestamp, "Fox" if "foxnews.com" in article else "CNN", keyword, -2, []])
+                    out.append([article, timestamp, urlparse(article).netloc, keyword, -2, []])
     return out
 
 
-def scrapeArticleLinks(keyword, start_timestamp, stop_timestamp, step_days):
-    cnn_url = "www.cnn.com"
-    fox_url = "www.foxnews.com"
+def scrapeArticleLinks(keyword, start_timestamp, stop_timestamp, step_days, source1, source2):
     while start_timestamp <= stop_timestamp:
         start = datetime.datetime.fromtimestamp(start_timestamp).strftime('%m/%d/%Y')
         end = datetime.datetime.fromtimestamp(start_timestamp + step_days * 86400).strftime('%m/%d/%Y')
-        for a in search("{} site:{}".format(keyword, cnn_url), stop=9, startdate=start, enddate=end):
+        for a in search("{} site:{}".format(keyword, source1), stop=9, startdate=start, enddate=end):
             recordUrl(a, keyword)
-        for a in search("{} site:{}".format(keyword, fox_url), stop=9, startdate=start, enddate=end):
+        for a in search("{} site:{}".format(keyword, source2), stop=9, startdate=start, enddate=end):
             recordUrl(a, keyword)
         start_timestamp += step_days * 86400
