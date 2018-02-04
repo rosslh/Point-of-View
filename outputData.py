@@ -81,6 +81,29 @@ def createAndShowGraph(urls,dates,newstype,scores,keywords):
     fig = go.Figure(data=data, layout=layout)
     plotly.offline.plot(fig, filename='CNN vs Fox.html')
 
+
+def TakeListOfLists(listOfLists):
+    urls = []
+    dates = []
+    newstype = []
+    scores = []
+    keywords = []
+    for list in listOfLists:
+        urls.append(list[0])
+        dates.append(list[1])
+        newstype.append(list[2])
+        scores.append(list[4])
+        keywords.append(list[5])
+    createAndShowGraph(urls, dates, newstype, scores, keywords)
+
+
+
+# A list of lists [String: url,TimeStamp: date,String: networkname,String: Target, Float: score,[String]:keywords]
+
+
+
+
+'''
 dataLocation = "/Users/mwrana/PycharmProjects/New/sampleResult.txt"
 
 urls = []
@@ -107,3 +130,5 @@ with open(dataLocation) as f:
 
 
 createAndShowGraph(urls,dates,newstype,scores,keywords)
+
+'''
