@@ -4,7 +4,6 @@ import sys
 import time
 
 from selenium import webdriver
-from urlparse import urlparse
 
 if sys.version_info[0] > 2:
     from urllib.parse import quote_plus, urlparse, parse_qs
@@ -129,6 +128,8 @@ def recordUrl(url, subject):
     with open("./data/{}.txt".format(subject), "a+") as f:
         if url not in f.read().split("\n"):
             f.write("{}\n".format(url))
+        else:
+            print("Duplicate found: {}".format(url))
 
 
 def ymdToTimestamp(date):

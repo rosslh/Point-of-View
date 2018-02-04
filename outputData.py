@@ -1,45 +1,78 @@
 import datetime
 import time
+
+import numpy
+from numpy import array
+from scipy import stats
+
 import plotly
 import plotly.graph_objs as go
-import numpy
-import scipy
 
 
-def createAndShowGraph(urls, dates, newstype, scores, keywords, mainKeyword):
+def createAndShowGraph(urls, dates, newstype, scores, keywords, mainKeyword, source1,  source2):
     cnnXaxis = []
     cnnYaxis = []
     cnnHover = []
     foxXaxis = []
     foxYaxis = []
     foxHover = []
-
+    foxXdata = []
+    cnnXdata = []
     for i in range(len(urls) - 1):
-        if newstype[i].lower() == "fox":
+        if newstype[i].lower() == source2.lower():
             if float(scores[i]) != 0:
                 foxXaxis.append(datetime.datetime.fromtimestamp(dates[i]))
+                foxXdata.append(dates[i])
                 foxYaxis.append(float(scores[i]))
                 foxHover.append("Article: " + urls[i])
-        elif newstype[i].lower() == "cnn":
+        elif newstype[i].lower() == source1.lower():
             if float(scores[i]) != 0:
                 cnnXaxis.append(datetime.datetime.fromtimestamp(dates[i]))
+                cnnXdata.append(dates[i])
                 cnnYaxis.append(float(scores[i]))
                 cnnHover.append("Article: " + urls[i])
+
+    foxNumpyIntArray = array([numpy.int64(x) for x in foxXdata])
+    cnnNumpyIntArray = array([numpy.int64(x) for x in cnnXdata])
+
+    fslope, fintercept, fr_value, fp_value, fstd_err = stats.linregress(foxNumpyIntArray, foxYaxis)
+    cslope, cintercept, cr_value, cp_value, cstd_err = stats.linregress(cnnNumpyIntArray, cnnYaxis)
+
+    fline = fslope * foxNumpyIntArray + fintercept
+    cline = cslope * cnnNumpyIntArray + cintercept
 
     cnnPoints = go.Scatter(
         x=cnnXaxis,
         y=cnnYaxis,
         mode="markers",
-        name="CNN (Averate Sentiment: " + str(sum(cnnYaxis) / float(len(cnnYaxis)))[:8] + ")",
+        marker=go.Marker(color='blue'),
+        name=source1 + " (Average: " + str(sum(cnnYaxis) / float(len(cnnYaxis)))[:8] + ")",
         text=cnnHover
+    )
+
+    cnnLine = go.Scatter(
+        x=cnnXaxis,
+        y=cline,
+        mode='lines',
+        marker=go.Marker(color='blue'),
+        name=source1 + ' Linear Regression Model'
     )
 
     foxPoints = go.Scatter(
         x=foxXaxis,
         y=foxYaxis,
         mode="markers",
-        name="Fox (Average Sentiment: " + str(sum(foxYaxis) / float(len(foxYaxis)))[:8] + ")",
+        marker=go.Marker(color='orange'),
+        name=source2 + " (Average: " + str(sum(foxYaxis) / float(len(foxYaxis)))[:8] + ")",
         text=foxHover
+    )
+
+    foxLine = go.Scatter(
+        x=foxXaxis,
+        y=fline,
+        mode='lines',
+        marker=go.Marker(color='orange'),
+        name=source2 + ' Linear Regression Model'
     )
 
     layout = go.Layout(
@@ -75,12 +108,12 @@ def createAndShowGraph(urls, dates, newstype, scores, keywords, mainKeyword):
         )
     )
 
-    data = [cnnPoints, foxPoints]
+    data = [cnnPoints, foxPoints, cnnLine, foxLine]
     fig = go.Figure(data=data, layout=layout)
-    plotly.offline.plot(fig, filename='CNN vs Fox.html')
+    plotly.offline.plot(fig, filename="comparison.html")
 
 
-def TakeListOfLists(listOfLists):
+def TakeListOfLists(listOfLists, source1, source2):
     urls = []
     dates = []
     newstype = []
@@ -94,7 +127,7 @@ def TakeListOfLists(listOfLists):
         mainKeyword = sublist[3]
         scores.append(sublist[4])
         keywords.append(sublist[5])
-    createAndShowGraph(urls, dates, newstype, scores, keywords, mainKeyword)
+    createAndShowGraph(urls, dates, newstype, scores, keywords, mainKeyword, source1, source2)
 
 
 # A list of lists [String: url,TimeStamp: date,String: networkname,String: Target, Float: score,[String]:keywords]

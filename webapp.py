@@ -28,9 +28,11 @@ def my_form_post():
 
     topic = str(request.form['text'])
     # find articles
+    source1 = str(request.form['source1'])
+    source2 = str(request.form['source2'])
     scrapeArticleLinks(topic, start_final, end_final, 7, source1, source2)
     # format as list and get sentiment
-    TakeListOfLists(analyzeIn(getDataFromFile(topic, start_final, end_final)))
+    TakeListOfLists(analyzeIn(getDataFromFile(topic, start_final, end_final)), source1, source2)
     # output as graph
     return "start: {}, end: {}, topic: {}".format(start, end, topic)
 
