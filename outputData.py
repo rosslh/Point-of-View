@@ -1,8 +1,9 @@
 import datetime
 import time
-
 import plotly
 import plotly.graph_objs as go
+import numpy
+import scipy
 
 
 def createAndShowGraph(urls, dates, newstype, scores, keywords, mainKeyword):

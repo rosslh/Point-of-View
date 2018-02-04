@@ -18,7 +18,6 @@ def main():
 def my_form_post():
     start = request.form['start']
     end = request.form['finish']
-    runAsDemo = request.form['demoit']
     startTime = [int(a) for a in str(start).split('-')]
     startFinal = datetime.datetime(startTime[0], startTime[1], startTime[2], 0, 0)
     endTime = [int(a) for a in str(end).split('-')]
@@ -29,11 +28,11 @@ def my_form_post():
 
     topic = str(request.form['text'])
     # find articles
-    scrapeArticleLinks(topic, start_final, end_final, 7)
+    scrapeArticleLinks(topic, start_final, end_final, 7, source1, source2)
     # format as list and get sentiment
     TakeListOfLists(analyzeIn(getDataFromFile(topic, start_final, end_final)))
     # output as graph
-    return "start: {}, end: {}, topic: {}, demo: {}".format(start, end, topic, runAsDemo)
+    return "start: {}, end: {}, topic: {}".format(start, end, topic)
 
 
 if __name__ == "__main__":
