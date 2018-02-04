@@ -2,29 +2,108 @@ import plotly
 import plotly.graph_objs as go
 import urllib.request
 import random
+import datetime
 
 
-def createAndShowGraph(cnnSentiment,foxSentiment,keyWords):
+def createAndShowGraph(urls,dates,newstype,scores,keywords):
 
-    #Actually fill this array correctly
+    cnnXaxis = []
+    cnnYaxis = []
+    cnnHover = []
+    foxXaxis = []
+    foxYaxis = []
+    foxHover = []
 
-    points1 = go.Scatter(
-        x = [i for i in range(len(cnnSentiment))],
-        y = cnnSentiment,
-        mode = "lines+markers",
-        name = "CNN"
+    for i in range(len(urls)-1):
+        if newstype[i] == "fox" :
+            if float(scores[i]) != 0:
+                foxXaxis.append(dates[i])
+                foxYaxis.append(float(scores[i]))
+                foxHover.append("Article: " + urls[i])
+        elif newstype[i] == "cnn":
+            if float(scores[i]) != 0:
+                cnnXaxis.append(dates[i])
+                cnnYaxis.append(float(scores[i]))
+                cnnHover.append("Article: " + urls[i])
+
+    print(sum(cnnYaxis) / float(len(cnnYaxis)))
+    print(sum(foxYaxis) / float(len(foxYaxis)))
+
+    cnnPoints = go.Scatter(
+        x = cnnXaxis,
+        y = cnnYaxis,
+        mode = "markers",
+        name = "CNN",
+        text = cnnHover
     )
 
-    points2 = go.Scatter(
-        x = [i for i in range(len(foxSentiment))],
-        y = foxSentiment,
-        mode = "lines+markers",
-        name = "Fox"
+    foxPoints = go.Scatter(
+        x = foxXaxis,
+        y = foxYaxis,
+        mode = "markers",
+        name = "Fox",
+        text = foxHover
     )
 
-    data = [points1,points2]
-    plotly.offline.plot(data, filename='CNN vs Fox.html')
+    layout = go.Layout(
+        title = "Analysis of stuff",
+        xaxis=dict(
+            title='Date',
+            titlefont=dict(
+                family='Arial, sans-serif',
+                size=18,
+            ),
+            showticklabels=True,
+            tickfont=dict(
+                family='Courier New, sans-serif',
+                size=14,
+                color='black'
+            ),
+        ),
+        yaxis=dict(
+            zeroline=True,
+            title='Sentiment Score',
+            titlefont=dict(
+                family='Arial, sans-serif',
+                size=18,
+            ),
+            showticklabels=True,
+            tickfont=dict(
+                family='Courier New, sans-serif',
+                size=14,
+                color='black'
+            ),
+            range=[-1,1]
+        )
+    )
 
-cnnValues = [0.145818, 0.188951, -0.13853, -0.379094, -0.311741]
-foxValues = [-0.12272, 0.0675951, -0.344402, -0.40153, -0.397371]
-createAndShowGraph(cnnValues,foxValues,"a")
+    data = [cnnPoints,foxPoints]
+    fig = go.Figure(data=data, layout=layout)
+    plotly.offline.plot(fig, filename='CNN vs Fox.html')
+
+dataLocation = "/Users/mwrana/PycharmProjects/New/sampleResult.txt"
+
+urls = []
+dates = []
+newstype = []
+scores = []
+keywords = []
+
+
+with open(dataLocation) as f:
+    line = f.readline().strip()
+    while line:
+        lineSplit = line.split(",")
+        urls.append(lineSplit[0])
+        dates.append(int(lineSplit[1]))
+        newstype.append(lineSplit[2])
+        scores.append(lineSplit[4])
+        numKeywords = len(lineSplit)-5
+        tempWords = []
+        for i in range(numKeywords):
+            tempWords.append(lineSplit[len(lineSplit)-1-i].replace("\'","").replace("[","").replace("]","").replace("\n",""))
+        keywords.append(tempWords)
+        line = f.readline()
+
+
+createAndShowGraph(urls,dates,newstype,scores,keywords)
