@@ -14,6 +14,16 @@ def main():
     return render_template('qHack.html')
 
 
+@app.route('/fury',)
+def fury():
+    return render_template('fury.html')
+
+
+@app.route('/comey',)
+def comey():
+    return render_template('comey.html')
+
+
 @app.route('/', methods=['POST'])
 def my_form_post():
     start = request.form['start']
